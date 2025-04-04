@@ -1,0 +1,52 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# IDE - VSCode
+.vscode/*
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Docker
+docker-compose.override.yml
+docker-compose.yml
+Dockerfile
+
+# Environment Files
+.env
+.env.local
+*.env
+
+# Temporary Files
+*.tmp
+*.swp
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Shell Scripts
+*.sh
