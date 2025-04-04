@@ -2,7 +2,9 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using CleanArch.Application.AppServices;
 using CleanArch.Application.Behaviors;
+using CleanArch.Application.Interfaces;
 
 namespace CleanArch.Application
 {
@@ -20,6 +22,7 @@ namespace CleanArch.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             
             // Register application services
+            services.AddScoped<IUserService, UserService>();
             // Example: services.AddScoped<ISomeAppService, SomeAppService>();
             
             return services;
