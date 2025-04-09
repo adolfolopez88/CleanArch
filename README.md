@@ -1,7 +1,7 @@
 ```mermaid
 flowchart TD
     A[Usuario hace clic en 'Generar Vista Previa'] --> B{¿Es Vista Previa?}
-    B --> |Sí| C[generar Documento(true)]
+    B --> |Sí| C[generar Documento]
     B --> |No| D[generar Documento]
     
     C --> E[Leer Formulario]
