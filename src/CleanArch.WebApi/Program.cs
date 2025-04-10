@@ -7,6 +7,9 @@ using CleanArch.Infrastructure.WebServices;
 using CleanArch.WebApi.Data;
 using CleanArch.WebApi.Middlewares;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Writers;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +18,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Identity;
+using CleanArch.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -174,7 +179,22 @@ builder.Services.AddLoggerServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "CleanArch API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "CleanArch API", 
+        Version = "v1",
+        Description = "A clean architecture boilerplate API with cURL examples",
+        Contact = new OpenApiContact
+        {
+            Name = "API Support",
+            Email = "support@example.com",
+            Url = new Uri("https://example.com/support")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        }
+    });
     
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -197,12 +217,38 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
     
+    // Show cURL code snippets in Swagger UI
+    options.DocumentFilter<SwaggerDocumentFilter>();
+    options.OperationFilter<SwaggerOperationFilter>();
+    
+    // Use controller and method name as operationId
+    options.CustomOperationIds(apiDesc =>
+    {
+        if (apiDesc.TryGetMethodInfo(out var methodInfo) && methodInfo.DeclaringType != null)
+        {
+            var controllerName = methodInfo.DeclaringType.Name.Replace("Controller", string.Empty);
+            return $"{controllerName}_{methodInfo.Name}";
+        }
+        return null;
+    });
+    
+    // Enable annotations
+    options.EnableAnnotations();
+    
     // Add XML comments for better documentation
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
     {
         options.IncludeXmlComments(xmlPath);
+    }
+    
+    // Include XML comments from Domain project too
+    var domainXmlFile = "CleanArch.Domain.xml";
+    var domainXmlPath = Path.Combine(AppContext.BaseDirectory, domainXmlFile);
+    if (File.Exists(domainXmlPath))
+    {
+        options.IncludeXmlComments(domainXmlPath);
     }
 });
 
@@ -212,8 +258,29 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanArch API v1"));
+    app.UseSwagger(c =>
+    {
+        c.RouteTemplate = "api-docs/{documentName}/swagger.json";
+    });
+    
+    // Configure Swagger UI
+    app.UseSwaggerUI(c => 
+    {
+        c.SwaggerEndpoint("/api-docs/v1/swagger.json", "CleanArch API v1");
+        c.InjectStylesheet("/swagger-ui-custom.css");
+        c.InjectJavascript("/swagger-ui-custom.js");
+        c.DocumentTitle = "CleanArch API Documentation";
+        c.DefaultModelsExpandDepth(0); // Hide the models by default
+        c.RoutePrefix = "swagger";
+    });
+    
+    // Configure ReDoc UI (alternative to Swagger UI)
+    app.UseReDoc(c =>
+    {
+        c.DocumentTitle = "CleanArch API Documentation";
+        c.SpecUrl = "/api-docs/v1/swagger.json";
+        c.RoutePrefix = "api-docs";
+    });
 }
 else
 {
@@ -241,6 +308,7 @@ app.Use(async (context, next) =>
 app.UseResponseCompression();
 app.UseSerilogRequestLogging();
 app.UseCors("CorsPolicy");
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

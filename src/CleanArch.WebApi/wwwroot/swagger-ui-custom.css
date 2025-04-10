@@ -1,0 +1,39 @@
+/* Custom Swagger UI styles */
+
+.curl-example {
+    margin: 20px 0;
+    border-top: 1px solid rgba(59, 65, 81, 0.2);
+}
+
+.curl-command {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.copy-curl {
+    background-color: #4990e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s;
+}
+
+.copy-curl:hover {
+    background-color: #3573be;
+}
+
+/* Make Swagger UI a bit more modern */
+.swagger-ui .opblock-summary-control:focus {
+    outline: none;
+}
+
+.swagger-ui .opblock {
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

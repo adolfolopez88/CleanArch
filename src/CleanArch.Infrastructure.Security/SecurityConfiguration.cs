@@ -68,8 +68,10 @@ namespace CleanArch.Infrastructure.Security
         public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration configuration)
         {
             var securityConfig = SecurityConfiguration.FromConfiguration(configuration);
-            services.AddSingleton(securityConfig);
+            services.AddSingleton<ISecurityConfiguration>(securityConfig);
+            services.AddSingleton(securityConfig);  // Register the concrete type as well
             services.AddScoped<ICryptoService, CryptoService>();
+            services.AddScoped<IJwtService, JwtService>();
 
             return services;
         }
